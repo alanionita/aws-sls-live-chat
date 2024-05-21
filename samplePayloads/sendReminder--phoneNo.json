@@ -1,0 +1,5 @@
+{
+    "phoneNo":"MUST_MATCH_VALIDATED_SNS_PHONE_NO",
+    "reminder":"REMINDER_TEXT",
+    "reminderDate": "DATETIME_AS_NUM eg 1714564800002"
+}

@@ -1,0 +1,5 @@
+{
+    "email":"MUST_MATCH_VALIDATED_SES_ID_EMAIL",
+    "reminder":"REMINDER_TEXT",
+    "reminderDate": "DATETIME_AS_NUM eg 1714564800002"
+}
