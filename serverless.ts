@@ -27,7 +27,7 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       ROOM_CONN_TABLE: '${self:custom.roomConnTable}',
-      SES_ADDR: '${self:custom.secrets.SES_ADDR}'
+      // SES_ADDR: '${self:custom.secrets.SES_ADDR}'
     },
   },
   // import the function via paths
@@ -41,7 +41,7 @@ const serverlessConfiguration: AWS = {
   package: { individually: true },
   custom: {
     roomConnTable: '${sls:stage}-room-conn-table',
-    secrets: '${file(.secrets/${sls:stage}.json)}',
+    // secrets: '${file(.secrets/${sls:stage}.json)}',
     esbuild: {
       bundle: true,
       minify: false,
