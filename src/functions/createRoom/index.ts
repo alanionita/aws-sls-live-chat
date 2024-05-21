@@ -2,6 +2,7 @@ import { formatJSONResponse } from "@libs/apiGw";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { ulid } from 'ulid'
 import { dynamo } from "@libs/dynamo";
+import { websocket } from "@libs/websocket";
 import { UserConnRecord } from "src/types/dynamo";
 
 export async function handler(event: APIGatewayProxyEvent) {
@@ -14,17 +15,22 @@ export async function handler(event: APIGatewayProxyEvent) {
 
         const { connectionId, domainName, stage } = event.requestContext
 
+        const w = websocket
+
         if (!body.name) {
             await websocket.send({
                 data: {
                     message: 'createRoom request requires a "name"',
                     type: 'err'
-                }
+                },
+                connectionId,
+                domainName,
+                stage
             })
             return formatJSONResponse({})
         }
 
-        const roomId = ulid().slice(0,8) 
+        const roomId = ulid().slice(0, 8)
 
 
         // Define DDB record
@@ -46,7 +52,10 @@ export async function handler(event: APIGatewayProxyEvent) {
             data: {
                 message: `Successfully connected to room ${roomId}`,
                 type: 'info'
-            }
+            },
+            connectionId,
+            domainName,
+            stage
         })
 
         return formatJSONResponse({
