@@ -50,9 +50,10 @@ export async function handler(event: APIGatewayProxyEvent) {
             pkValue: roomId
         })
 
+        const wsClient = websocket.createClient(domainName,stage);
 
         const messagePromiseArr = roomUsers.filter(targetUser => targetUser.id !== user.id).map(user => {
-            const { id: connectionId, domainName, stage } = user;
+            const { id: connectionId } = user;
 
             return websocket.send({
                 data: {
@@ -60,41 +61,11 @@ export async function handler(event: APIGatewayProxyEvent) {
                     from: user.name
                 },
                 connectionId,
-                domainName,
-                stage
+                client: wsClient
             })
         })
 
-        await Promise.all(messagePromiseArr)
-
-        // Define DDB record
-        const data: UserConnRecord = {
-            id: connectionId,
-            pk: roomId,
-            sk: connectionId,
-            name,
-            domainName,
-            stage,
-            roomId
-        }
-
-        // Write DDB record
-        await dynamo.write(data, tableName)
-
-        // Send message back to user
-        await websocket.send({
-            data: {
-                message: `Successfully connected to room ${roomId}`,
-                type: 'info'
-            },
-            connectionId,
-            domainName,
-            stage
-        })
-
-        return formatJSONResponse({
-
-        })
+        await Promise.all(messagePromiseArr);
     } catch (err) {
         console.error(err.message)
         console.info(JSON.stringify(err.stack))

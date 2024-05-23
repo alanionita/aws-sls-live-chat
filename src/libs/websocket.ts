@@ -3,19 +3,29 @@ import { ApiGatewayManagementApiClient, PostToConnectionCommand, PostToConnectio
 interface IWebSocketSend {
     data: {
         message?: string
-        type?:string
+        type?: string
         from?: string
     },
     connectionId: string
-    domainName: string,
-    stage: string
+    domainName?: string,
+    stage?: string,
+    client?: ApiGatewayManagementApiClient
 }
 
 export const websocket = {
-    send: ({data, connectionId, domainName, stage}: IWebSocketSend) => {
+    createClient: (domainName: string, stage: string) => {
+        if (!domainName || !stage) {
+            throw Error('domainName or stage is required for websocket client creation')
+        }
         const client = new ApiGatewayManagementApiClient({
             endpoint: `https://${domainName}/${stage}`
         })
+        return client;
+    },
+    send: ({ data, connectionId, domainName, stage, client }: IWebSocketSend) => {
+        if (!client) {
+            client = websocket.createClient(domainName, stage)
+        }
 
         const params: PostToConnectionCommandInput = {
             ConnectionId: connectionId,
