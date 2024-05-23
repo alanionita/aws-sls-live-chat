@@ -17,7 +17,7 @@ export const dynamo = {
 
         return data;
     },
-    get: async (id: string, tableName: string) => {
+    get: async <T = Record<string, any>>(id: string, tableName: string) => {
 
         const getParams: GetCommandInput = {
             TableName: tableName,
@@ -30,9 +30,9 @@ export const dynamo = {
 
         const res = await ddbClient.send(command);
 
-        return res.Item;
+        return res.Item as T;
     },
-    query: async ({ tableName, index, pkValue, pkKey = 'pk', skValue, skKey = 'sk', sortAscending = true, limit}: { tableName: string, index: string, pkValue: string, pkKey?: string, skValue?: string, skKey?: string, sortAscending?: boolean, limit?: number }) => {
+    query: async <T = Record<string, any>>({ tableName, index, pkValue, pkKey = 'pk', skValue, skKey = 'sk', sortAscending = true, limit}: { tableName: string, index: string, pkValue: string, pkKey?: string, skValue?: string, skKey?: string, sortAscending?: boolean, limit?: number }) => {
 
         const skExp = skValue ? `AND ${skKey} = :rangeValue` : ''
 
@@ -55,6 +55,6 @@ export const dynamo = {
 
         const res = await ddbClient.send(command);
 
-        return res.Items;
+        return res.Items as T[];
     }
 }

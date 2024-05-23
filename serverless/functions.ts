@@ -20,6 +20,16 @@ const functions: AWS['functions'] = {
                 }
             }
         ]
+    },
+    message: {
+        handler: "src/functions/message/index.handler",
+        events: [
+            {
+                websocket: {
+                    route: 'message'
+                }
+            }
+        ]
     }
 }
 
