@@ -1,4 +1,5 @@
 import type { AWS } from '@serverless/typescript';
+import { disconnect } from 'process';
 
 const functions: AWS['functions'] = {
     createRoom: {
@@ -27,6 +28,16 @@ const functions: AWS['functions'] = {
             {
                 websocket: {
                     route: 'message'
+                }
+            }
+        ]
+    },
+    disconnect: {
+        handler: "src/functions/disconnect/index.handler",
+        events: [
+            {
+                websocket: {
+                    route: '$disconnect'
                 }
             }
         ]
