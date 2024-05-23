@@ -1,5 +1,4 @@
 import type { AWS } from '@serverless/typescript';
-import { disconnect } from 'process';
 
 const functions: AWS['functions'] = {
     createRoom: {
