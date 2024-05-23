@@ -32,7 +32,7 @@ export const dynamo = {
 
         return res.Item;
     },
-    query: async ({ tableName, index, pkValue, pkKey = 'pk', skValue, skKey = 'sk', sortAscending = true }: { tableName: string, index: string, pkValue: string, pkKey?: string, skValue?: string, skKey?: string, sortAscending?: boolean }) => {
+    query: async ({ tableName, index, pkValue, pkKey = 'pk', skValue, skKey = 'sk', sortAscending = true, limit}: { tableName: string, index: string, pkValue: string, pkKey?: string, skValue?: string, skKey?: string, sortAscending?: boolean, limit?: number }) => {
 
         const skExp = skValue ? `AND ${skKey} = :rangeValue` : ''
 
@@ -43,7 +43,8 @@ export const dynamo = {
             ExpressionAttributeValues: {
                 ':hashValue': pkValue,
             },
-            ScanIndexForward: sortAscending
+            ScanIndexForward: sortAscending,
+            Limit: limit
         }
 
         if (skValue) {

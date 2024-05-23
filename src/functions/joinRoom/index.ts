@@ -1,8 +1,7 @@
 import { formatJSONResponse } from "@libs/apiGw";
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { ulid } from 'ulid'
 import { dynamo } from "@libs/dynamo";
-import { websocket }  from "@libs/websocket";
+import { websocket } from "@libs/websocket";
 import { UserConnRecord } from "src/types/dynamo";
 
 export async function handler(event: APIGatewayProxyEvent) {
@@ -11,14 +10,14 @@ export async function handler(event: APIGatewayProxyEvent) {
 
         if (!tableName) throw Error('Table name value cannot be found!')
 
-        const body = JSON.parse(event.body);
+        const { name, roomId } = JSON.parse(event.body);
 
         const { connectionId, domainName, stage } = event.requestContext
 
-        if (!body.name) {
+        if (!name) {
             await websocket.send({
                 data: {
-                    message: 'createRoom request requires a "name"',
+                    message: 'joinRoom request requires a "name"',
                     type: 'err'
                 },
                 connectionId,
@@ -28,16 +27,49 @@ export async function handler(event: APIGatewayProxyEvent) {
             return formatJSONResponse({})
         }
 
-        // Generate a roomId
-        const roomId = ulid().slice(0, 8)
+        if (!roomId) {
+            await websocket.send({
+                data: {
+                    message: 'joinRoom request requires a "roomId"',
+                    type: 'err'
+                },
+                connectionId,
+                domainName,
+                stage
+            })
+            return formatJSONResponse({})
+        }
 
+        const userRoom = await dynamo.query({
+            tableName: tableName,
+            pkValue: roomId,
+            index: 'index1',
+            limit: 1
+        })
+
+        // Validate that rooms exists
+
+        const roomExists = userRoom.length != 0;
+
+        if (!roomExists) {
+            await websocket.send({
+                data: {
+                    message: 'roomId not found, please create a room or pass a valid "roomId"',
+                    type: 'err'
+                },
+                connectionId,
+                domainName,
+                stage
+            })
+            return formatJSONResponse({})
+        }
 
         // Define DDB record
         const data: UserConnRecord = {
             id: connectionId,
             pk: roomId,
             sk: connectionId,
-            name: body.name,
+            name,
             domainName,
             stage,
             roomId
